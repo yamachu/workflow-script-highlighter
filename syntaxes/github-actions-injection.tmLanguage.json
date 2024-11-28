@@ -1,0 +1,20 @@
+{
+  "scopeName": "source.github-actions-workflow",
+  "patterns": [
+    {
+      "name": "meta.embedded.block.typescript",
+      "begin": "\\|\\s*#```typescript",
+      "end": "#```",
+      "patterns": [
+        {
+          "include": "source.ts"
+        }
+      ]
+    },
+    {
+      "include": "source.yaml"
+    }
+  ],
+  "repository": {},
+  "injectionSelector": "L:source.yaml"
+}

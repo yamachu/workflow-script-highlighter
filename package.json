@@ -9,13 +9,20 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onLanguage:github-actions-workflow"
+  ],
+  "extensionDependencies": [
+    "github.vscode-github-actions"
+  ],
   "main": "./dist/extension.js",
   "contributes": {
-    "commands": [
+    "grammars": [
       {
-        "command": "workflow-script-highlighter.helloWorld",
-        "title": "Hello World"
+        "language": "github-actions-workflow",
+        "scopeName": "source.github-actions-workflow",
+        "path": "./syntaxes/github-actions-injection.tmLanguage.json",
+        "injectTo": ["source.yaml"]
       }
     ]
   },
