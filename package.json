@@ -2,20 +2,25 @@
   "name": "workflow-script-highlighter",
   "displayName": "Workflow Script Highlighter",
   "description": "Syntax highlighting for GitHub Actions workflow @actions/github-script's script section.",
+  "publisher": "yamachu",
   "author": {
     "name": "yamachu",
     "url": "https://github.com/yamachu"
   },
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/yamachu/workflow-script-highlighter"
+  },
+  "bugs": {
+    "url": "https://github.com/yamachu/workflow-script-highlighter/issues"
   },
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.95.0"
   },
   "categories": [
-    "Other"
+    "Programming Languages"
   ],
   "activationEvents": [
     "onLanguage:github-actions-workflow"
