@@ -1,30 +1,101 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
+import * as ts from "typescript";
 import * as vscode from "vscode";
+import {
+  postInsertedScript,
+  preInsertedScript,
+  triggerTextTsToYaml,
+  triggerTextYamlToTs,
+} from "./Contract";
+import { logger } from "./Logger";
+import { createLanguageService, updateScript } from "./LanguageService";
+import { asCompletionItemKind } from "./Platform";
 
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
-export function activate(context: vscode.ExtensionContext) {
-  // Use the console to output diagnostic information (console.log) and errors (console.error)
-  // This line of code will only be executed once when your extension is activated
-  console.log(
-    'Congratulations, your extension "workflow-script-highlighter" is now active!'
+// For debugging
+logger.hide();
+
+let languageService: ts.LanguageService;
+
+function extractTsCodeBlock(
+  text: string,
+  offset: number
+): { content: string; offset: number } | null {
+  const tsBlockStart = text.lastIndexOf(triggerTextYamlToTs, offset);
+  const tsBlockEnd = text.indexOf(
+    triggerTextTsToYaml,
+    tsBlockStart + triggerTextYamlToTs.length
   );
 
-  // The command has been defined in the package.json file
-  // Now provide the implementation of the command with registerCommand
-  // The commandId parameter must match the command field in package.json
-  const disposable = vscode.commands.registerCommand(
-    "workflow-script-highlighter.helloWorld",
-    () => {
-      // The code you place here will be executed every time your command is executed
-      // Display a message box to the user
-      vscode.window.showInformationMessage("Hello World from !");
-    }
-  );
+  if (tsBlockStart === -1 || tsBlockEnd === -1 || tsBlockEnd < offset) {
+    return null;
+  }
 
-  context.subscriptions.push(disposable);
+  const content = text.substring(
+    tsBlockStart + triggerTextYamlToTs.length,
+    tsBlockEnd - postInsertedScript.length
+  );
+  const tsOffset = offset - (tsBlockStart + triggerTextYamlToTs.length);
+
+  return { content, offset: tsOffset };
 }
 
-// This method is called when your extension is deactivated
-export function deactivate() {}
+export function activate(context: vscode.ExtensionContext) {
+  languageService = createLanguageService();
+
+  const completionItemProvider: vscode.CompletionItemProvider = {
+    provideCompletionItems(
+      document: vscode.TextDocument,
+      position: vscode.Position
+    ) {
+      const text = document.getText();
+      const offset = document.offsetAt(position);
+
+      const tsCodeBlock = extractTsCodeBlock(text, offset);
+      if (!tsCodeBlock) {
+        return [];
+      }
+
+      const scriptFileName = document.uri.fsPath + ".ts";
+      const augmentedContent = `${preInsertedScript}${tsCodeBlock.content}${postInsertedScript}`;
+      updateScript(scriptFileName, augmentedContent);
+
+      const updatedPosition = tsCodeBlock.offset + preInsertedScript.length;
+
+      const completions = languageService.getCompletionsAtPosition(
+        scriptFileName,
+        updatedPosition,
+        {}
+      );
+      if (!completions) {
+        return [];
+      }
+
+      // TODO: More powerful completion
+      const mapped = completions.entries.map((entry) => {
+        const item = new vscode.CompletionItem(
+          entry.name,
+          asCompletionItemKind(entry.kind)
+        );
+        item.sortText = entry.sortText;
+
+        return item;
+      });
+
+      return mapped;
+    },
+  };
+
+  const githubActionsWorkflowProvider =
+    vscode.languages.registerCompletionItemProvider(
+      { language: "github-actions-workflow", scheme: "file" },
+      completionItemProvider,
+      "."
+    );
+
+  context.subscriptions.push(githubActionsWorkflowProvider);
+}
+
+export function deactivate() {
+  if (languageService) {
+    languageService.dispose();
+  }
+}
