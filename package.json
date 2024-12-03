@@ -1,72 +1,18 @@
 {
-  "name": "workflow-script-highlighter",
-  "displayName": "Workflow Script Highlighter",
-  "description": "Syntax highlighting for GitHub Actions workflow @actions/github-script's script section.",
-  "publisher": "yamachu",
-  "author": {
-    "name": "yamachu",
-    "url": "https://github.com/yamachu"
-  },
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/yamachu/workflow-script-highlighter"
-  },
-  "bugs": {
-    "url": "https://github.com/yamachu/workflow-script-highlighter/issues"
-  },
-  "version": "0.0.1",
-  "engines": {
-    "vscode": "^1.95.0"
-  },
-  "categories": [
-    "Programming Languages"
-  ],
-  "activationEvents": [
-    "onLanguage:github-actions-workflow"
-  ],
-  "extensionDependencies": [
-    "github.vscode-github-actions"
-  ],
-  "main": "./dist/extension.js",
-  "contributes": {
-    "grammars": [
-      {
-        "language": "github-actions-workflow",
-        "scopeName": "source.github-actions-workflow",
-        "path": "./syntaxes/github-actions-injection.tmLanguage.json",
-        "injectTo": ["source.yaml"]
-      }
-    ]
-  },
-  "scripts": {
-    "vscode:prepublish": "npm run package && npm i --omit=dev",
-    "compile": "npm run check-types && npm run lint && node esbuild.js",
-    "watch": "npm-run-all -p watch:*",
-    "watch:esbuild": "node esbuild.js --watch",
-    "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
-    "package": "npm run check-types && npm run lint && node esbuild.js --production",
-    "compile-tests": "tsc -p . --outDir out",
-    "watch-tests": "tsc -p . -w --outDir out",
-    "pretest": "npm run compile-tests && npm run compile && npm run lint",
-    "check-types": "tsc --noEmit",
-    "lint": "eslint src",
-    "test": "vscode-test"
-  },
-  "devDependencies": {
-    "@types/mocha": "^10.0.9",
-    "@types/node": "20.x",
-    "@types/vscode": "^1.95.0",
-    "@typescript-eslint/eslint-plugin": "^8.10.0",
-    "@typescript-eslint/parser": "^8.7.0",
-    "@vscode/test-cli": "^0.0.10",
-    "@vscode/test-electron": "^2.4.1",
-    "esbuild": "^0.24.0",
-    "eslint": "^9.13.0",
-    "npm-run-all": "^4.1.5"
-  },
-  "dependencies": {
-    "@types/github-script": "github:actions/github-script",
-    "typescript": "^5.6.3"
-  }
+	"private": true,
+	"packageManager": "pnpm@9.1.0",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/volarjs/starter.git"
+	},
+	"scripts": {
+		"build": "cd ./packages/vscode && npm run build",
+		"watch": "cd ./packages/vscode && npm run watch",
+		"pack": "cd ./packages/vscode && npm run pack",
+		"release": "cd ./packages/vscode && npm run release"
+	},
+	"devDependencies": {
+		"@types/node": "latest",
+		"typescript": "latest"
+	}
 }
