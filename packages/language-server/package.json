@@ -8,7 +8,7 @@
 		"out/**/*.d.ts"
 	],
 	"bin": {
-		"github-script-language-server": "./github-script-language-server.js"
+		"github-script-language-server": "./bin/github-script-language-server.js"
 	},
 	"dependencies": {
 		"@volar/language-core": "~2.4.0",
