@@ -47,9 +47,6 @@ importers:
 
   packages/vscode:
     devDependencies:
-      '@html1/language-server':
-        specifier: workspace:*
-        version: link:../language-server
       '@types/vscode':
         specifier: ^1.82.0
         version: 1.90.0
@@ -59,6 +56,9 @@ importers:
       '@volar/vscode':
         specifier: ~2.4.0
         version: 2.4.4
+      '@yamachu/github-script-language-server':
+        specifier: workspace:*
+        version: link:../language-server
       esbuild:
         specifier: latest
         version: 0.21.5

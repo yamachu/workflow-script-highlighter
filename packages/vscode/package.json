@@ -38,10 +38,10 @@
 		"release": "npm run build && vsce publish --pre-release"
 	},
 	"devDependencies": {
-		"@html1/language-server": "workspace:*",
 		"@types/vscode": "^1.82.0",
 		"@volar/language-server": "~2.4.0",
 		"@volar/vscode": "~2.4.0",
+		"@yamachu/github-script-language-server": "workspace:*",
 		"esbuild": "latest",
 		"vsce": "latest"
 	}
