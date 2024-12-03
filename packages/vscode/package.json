@@ -44,5 +44,8 @@
 		"@yamachu/github-script-language-server": "workspace:*",
 		"esbuild": "latest",
 		"vsce": "latest"
+	},
+	"dependencies": {
+		"@types/github-script": "github:actions/github-script"
 	}
 }
