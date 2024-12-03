@@ -33,9 +33,9 @@
 		"@types/vscode": "^1.82.0",
 		"@volar/language-server": "~2.4.0",
 		"@volar/vscode": "~2.4.0",
+		"@vscode/vsce": "latest",
 		"@yamachu/github-script-language-server": "*",
-		"esbuild": "latest",
-		"vsce": "latest"
+		"esbuild": "latest"
 	},
 	"dependencies": {
 		"@types/github-script": "github:actions/github-script"
