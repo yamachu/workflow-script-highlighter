@@ -21,6 +21,10 @@ connection.onInitialize((params) => {
     params,
     createTypeScriptProject(tsdk.typescript, tsdk.diagnosticMessages, () => ({
       languagePlugins: [gitHubScriptLanguagePlugin],
+      setup(options) {
+        options.project.typescript!.languageServiceHost.getCompilationSettings().typeRoots =
+          params.initializationOptions.typeRoots;
+      },
     })),
     [...createTypeScriptServices(tsdk.typescript)]
   );

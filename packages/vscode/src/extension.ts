@@ -1,5 +1,5 @@
 import * as serverProtocol from "@volar/language-server/protocol";
-import { activateAutoInsertion, createLabsInfo, getTsdk } from "@volar/vscode";
+import { createLabsInfo, getTsdk } from "@volar/vscode";
 import {
   BaseLanguageClient,
   LanguageClient,
@@ -32,23 +32,23 @@ export async function activate(context: vscode.ExtensionContext) {
     },
   };
   const clientOptions: LanguageClientOptions = {
-    documentSelector: [{ language: "html1" }],
+    documentSelector: [{ language: "github-actions-workflow" }],
     initializationOptions: {
       typescript: {
         tsdk: (await getTsdk(context))!.tsdk,
       },
+      typeRoots: [
+        vscode.Uri.joinPath(context.extensionUri, "node_modules").fsPath,
+      ],
     },
   };
   client = new LanguageClient(
-    "html1-language-server",
-    "HTML1 Language Server",
+    "github-script-language-server",
+    "GitHub Script Highlight Language Server",
     serverOptions,
     clientOptions
   );
   await client.start();
-
-  // support for auto close tag
-  activateAutoInsertion("html1", client);
 
   // support for https://marketplace.visualstudio.com/items?itemName=johnsoncodehk.volarjs-labs
   // ref: https://twitter.com/johnsoncodehk/status/1656126976774791168

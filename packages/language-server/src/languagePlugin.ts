@@ -6,28 +6,23 @@ import {
 } from "@volar/language-core";
 import type { TypeScriptExtraServiceScript } from "@volar/typescript";
 import type * as ts from "typescript";
-import * as html from "vscode-html-languageservice";
 import { URI } from "vscode-uri";
+
+const LANGUAGE_ID = "github-actions-workflow";
 
 export const gitHubScriptLanguagePlugin: LanguagePlugin<URI> = {
   getLanguageId(uri) {
-    if (uri.path.endsWith(".html1")) {
-      return "html1";
+    if (uri.path.endsWith(".yml") || uri.path.endsWith(".yaml")) {
+      return LANGUAGE_ID;
     }
   },
   createVirtualCode(_uri, languageId, snapshot) {
-    if (languageId === "html1") {
+    if (languageId === LANGUAGE_ID) {
       return new GitHubScriptVirtualCode(snapshot);
     }
   },
   typescript: {
-    extraFileExtensions: [
-      {
-        extension: "html1",
-        isMixedContent: true,
-        scriptKind: 7 satisfies ts.ScriptKind.Deferred,
-      },
-    ],
+    extraFileExtensions: [],
     getServiceScript() {
       return undefined;
     },
@@ -55,16 +50,11 @@ export const gitHubScriptLanguagePlugin: LanguagePlugin<URI> = {
   },
 };
 
-const htmlLs = html.getLanguageService();
-
 export class GitHubScriptVirtualCode implements VirtualCode {
   id = "root";
-  languageId = "html";
+  languageId = LANGUAGE_ID;
   mappings: CodeMapping[];
   embeddedCodes: VirtualCode[] = [];
-
-  // Reuse in custom language service plugin
-  htmlDocument: html.HTMLDocument;
 
   constructor(public snapshot: ts.IScriptSnapshot) {
     this.mappings = [
@@ -82,90 +72,54 @@ export class GitHubScriptVirtualCode implements VirtualCode {
         },
       },
     ];
-    this.htmlDocument = htmlLs.parseHTMLDocument(
-      html.TextDocument.create(
-        "",
-        "html",
-        0,
-        snapshot.getText(0, snapshot.getLength())
-      )
-    );
-    this.embeddedCodes = [
-      ...getGitHubScriptEmbeddedCodes(snapshot, this.htmlDocument),
-    ];
+    this.embeddedCodes = [...getGitHubScriptEmbeddedCodes(snapshot)];
   }
 }
 
-function* getGitHubScriptEmbeddedCodes(
-  snapshot: ts.IScriptSnapshot,
-  htmlDocument: html.HTMLDocument
-): Generator<VirtualCode> {
-  const styles = htmlDocument.roots.filter((root) => root.tag === "style");
-  const scripts = htmlDocument.roots.filter((root) => root.tag === "script");
+const scriptRegexp = /#```typescript([\s\S]*?)\s*#```/gs;
 
-  for (let i = 0; i < styles.length; i++) {
-    const style = styles[i];
-    if (style.startTagEnd !== undefined && style.endTagStart !== undefined) {
-      const styleText = snapshot.getText(style.startTagEnd, style.endTagStart);
-      yield {
-        id: "style_" + i,
-        languageId: "css",
-        snapshot: {
-          getText: (start, end) => styleText.substring(start, end),
-          getLength: () => styleText.length,
-          getChangeRange: () => undefined,
-        },
-        mappings: [
-          {
-            sourceOffsets: [style.startTagEnd],
-            generatedOffsets: [0],
-            lengths: [styleText.length],
-            data: {
-              completion: true,
-              format: true,
-              navigation: true,
-              semantic: true,
-              structure: true,
-              verification: true,
-            },
-          },
-        ],
-        embeddedCodes: [],
-      };
-    }
-  }
+function* getGitHubScriptEmbeddedCodes(
+  snapshot: ts.IScriptSnapshot
+): Generator<VirtualCode> {
+  const documents = snapshot.getText(0, snapshot.getLength());
+  const matched = [...documents.matchAll(scriptRegexp)];
+  const scripts = matched.map((match) => {
+    return {
+      code: match[1],
+      startOffset: match.index + "#```typescript".length,
+      endOffset: match.index + match[0].length - "#```".length,
+    };
+  });
 
   for (let i = 0; i < scripts.length; i++) {
     const script = scripts[i];
-    if (script.startTagEnd !== undefined && script.endTagStart !== undefined) {
-      const text = snapshot.getText(script.startTagEnd, script.endTagStart);
-      const lang = script.attributes?.lang;
-      const isTs = lang === "ts" || lang === '"ts"' || lang === "'ts'";
-      yield {
-        id: "script_" + i,
-        languageId: isTs ? "typescript" : "javascript",
-        snapshot: {
-          getText: (start, end) => text.substring(start, end),
-          getLength: () => text.length,
-          getChangeRange: () => undefined,
-        },
-        mappings: [
-          {
-            sourceOffsets: [script.startTagEnd],
-            generatedOffsets: [0],
-            lengths: [text.length],
-            data: {
-              completion: true,
-              format: true,
-              navigation: true,
-              semantic: true,
-              structure: true,
-              verification: true,
-            },
+    const pre = `export default async ({ context, core, exec, github, glob, io, require }: import('@types/github-script').AsyncFunctionArguments) => {`;
+    const post = `}`;
+    const text = pre + script.code + post;
+    yield {
+      id: "script_" + i,
+      languageId: "javascript", // github-scripts not supporting TypeScript
+      snapshot: {
+        getText: (start, end) => text.substring(start, end),
+        getLength: () => text.length,
+        getChangeRange: () => undefined,
+      },
+      mappings: [
+        {
+          sourceOffsets: [script.startOffset],
+          generatedOffsets: [pre.length],
+          lengths: [script.code.length],
+          data: {
+            completion: true,
+            format: true,
+            navigation: true,
+            semantic: true,
+            structure: true,
+            verification: true,
           },
-        ],
-        embeddedCodes: [],
-      };
-    }
+        },
+      ],
+      embeddedCodes: [],
+    };
   }
 }
