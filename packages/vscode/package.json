@@ -33,7 +33,7 @@
 		"@types/vscode": "^1.82.0",
 		"@volar/language-server": "~2.4.0",
 		"@volar/vscode": "~2.4.0",
-		"@yamachu/github-script-language-server": "workspace:*",
+		"@yamachu/github-script-language-server": "*",
 		"esbuild": "latest",
 		"vsce": "latest"
 	},
