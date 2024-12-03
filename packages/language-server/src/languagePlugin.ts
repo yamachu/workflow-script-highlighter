@@ -9,7 +9,7 @@ import type * as ts from "typescript";
 import * as html from "vscode-html-languageservice";
 import { URI } from "vscode-uri";
 
-export const html1LanguagePlugin: LanguagePlugin<URI> = {
+export const gitHubScriptLanguagePlugin: LanguagePlugin<URI> = {
   getLanguageId(uri) {
     if (uri.path.endsWith(".html1")) {
       return "html1";
@@ -17,7 +17,7 @@ export const html1LanguagePlugin: LanguagePlugin<URI> = {
   },
   createVirtualCode(_uri, languageId, snapshot) {
     if (languageId === "html1") {
-      return new Html1VirtualCode(snapshot);
+      return new GitHubScriptVirtualCode(snapshot);
     }
   },
   typescript: {
@@ -57,7 +57,7 @@ export const html1LanguagePlugin: LanguagePlugin<URI> = {
 
 const htmlLs = html.getLanguageService();
 
-export class Html1VirtualCode implements VirtualCode {
+export class GitHubScriptVirtualCode implements VirtualCode {
   id = "root";
   languageId = "html";
   mappings: CodeMapping[];
@@ -91,12 +91,12 @@ export class Html1VirtualCode implements VirtualCode {
       )
     );
     this.embeddedCodes = [
-      ...getHtml1EmbeddedCodes(snapshot, this.htmlDocument),
+      ...getGitHubScriptEmbeddedCodes(snapshot, this.htmlDocument),
     ];
   }
 }
 
-function* getHtml1EmbeddedCodes(
+function* getGitHubScriptEmbeddedCodes(
   snapshot: ts.IScriptSnapshot,
   htmlDocument: html.HTMLDocument
 ): Generator<VirtualCode> {

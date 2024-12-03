@@ -10,7 +10,10 @@ import { create as createEmmetService } from "volar-service-emmet";
 import { create as createHtmlService } from "volar-service-html";
 import { create as createTypeScriptServices } from "volar-service-typescript";
 import { URI } from "vscode-uri";
-import { html1LanguagePlugin, Html1VirtualCode } from "./languagePlugin";
+import {
+  gitHubScriptLanguagePlugin,
+  GitHubScriptVirtualCode,
+} from "./languagePlugin";
 
 const connection = createConnection();
 const server = createServer(connection);
@@ -25,7 +28,7 @@ connection.onInitialize((params) => {
   return server.initialize(
     params,
     createTypeScriptProject(tsdk.typescript, tsdk.diagnosticMessages, () => ({
-      languagePlugins: [html1LanguagePlugin],
+      languagePlugins: [gitHubScriptLanguagePlugin],
     })),
     [
       createHtmlService(),
@@ -52,7 +55,7 @@ connection.onInitialize((params) => {
               const virtualCode = context.language.scripts
                 .get(decoded[0])
                 ?.generated?.embeddedCodes.get(decoded[1]);
-              if (!(virtualCode instanceof Html1VirtualCode)) {
+              if (!(virtualCode instanceof GitHubScriptVirtualCode)) {
                 return;
               }
               const styleNodes = virtualCode.htmlDocument.roots.filter(
