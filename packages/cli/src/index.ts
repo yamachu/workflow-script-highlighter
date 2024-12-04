@@ -1,16 +1,24 @@
-import * as kit from "@volar/kit";
 import { gitHubScriptLanguagePlugin } from "@yamachu/workflow-script-highlighter-core/src/languagePlugin";
 import { readdirSync, statSync } from "node:fs";
 import { isAbsolute, join, resolve } from "node:path";
-import { ScriptTarget } from "typescript";
 import { create as createTypeScriptServices } from "volar-service-typescript";
+
+const packageRoot = resolve(__dirname, "..", "resources", "node_modules");
+const tsPath = resolve(packageRoot, "typescript");
+
+// @volar/kit require('typescript')...
+const Module = require("node:module");
+const originalRequire = Module.prototype.require;
+Module.prototype.require = function (id: string) {
+  if (id === "typescript") {
+    return originalRequire.call(this, tsPath);
+  }
+  return originalRequire.call(this, id);
+};
 
 const maybePaths = process.argv.slice(2);
 
-const abortController = new AbortController();
-
 process.on("SIGINT", () => {
-  abortController.abort();
   process.exit(1);
 });
 
@@ -47,43 +55,44 @@ const findYamlFiles = (dir: string, fileList: string[] = []): string[] => {
 
 const targetFiles = getScripts(maybePaths);
 
-const packageRoot = resolve(__dirname, "..", "resources", "node_modules");
-const tsPath = resolve(packageRoot, "typescript");
+const main = async () => {
+  const createTypeScriptInferredChecker = await import("@volar/kit").then(
+    (v) => v.createTypeScriptInferredChecker
+  );
 
-const checker = kit.createTypeScriptInferredChecker(
-  [gitHubScriptLanguagePlugin],
-  createTypeScriptServices(require(tsPath)),
-  () => targetFiles,
-  {
-    typeRoots: [packageRoot],
-    checkJs: true,
-    target: ScriptTarget.ES2022,
-    lib: ["ES2022"],
-  }
-);
+  const checker = createTypeScriptInferredChecker(
+    [gitHubScriptLanguagePlugin],
+    createTypeScriptServices(require(tsPath)),
+    () => targetFiles,
+    {
+      typeRoots: [packageRoot],
+      checkJs: true,
+      target: 9, // ES2022
+      lib: ["ES2022"],
+    }
+  );
 
-Promise.all(
-  checker.getRootFileNames().map((fileName) => {
-    return Promise.race([
-      new Promise((_, reject) => {
-        abortController.signal.addEventListener("abort", () => {
-          reject();
-        });
-      }),
-      checker.check(fileName).then((diagnostics) => {
+  Promise.all(
+    checker.getRootFileNames().map((fileName) => {
+      return checker.check(fileName).then((diagnostics) => {
         return [fileName, diagnostics] as const;
-      }),
-    ] as const);
-  })
-)
-  .then((results: any[]) => {
-    results.forEach(([fileName, diagnostics]: [string, kit.Diagnostic[]]) => {
-      console.log(checker.printErrors(fileName, diagnostics));
+      });
+    })
+  )
+    .then((results) => {
+      results.forEach(([fileName, diagnostics]) => {
+        if (diagnostics.length === 0) {
+          return;
+        }
+        console.log(checker.printErrors(fileName, diagnostics));
+      });
+    })
+    .then(() => {
+      process.exit(0);
+    })
+    .catch((_) => {
+      process.exit(1);
     });
-  })
-  .then(() => {
-    process.exit(0);
-  })
-  .catch((_) => {
-    process.exit(1);
-  });
+};
+
+main();
