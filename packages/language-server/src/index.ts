@@ -4,8 +4,8 @@ import {
   createTypeScriptProject,
   loadTsdkByPath,
 } from "@volar/language-server/node";
+import { gitHubScriptLanguagePlugin } from "@yamachu/workflow-script-highlighter-core/src/languagePlugin";
 import { create as createTypeScriptServices } from "volar-service-typescript";
-import { gitHubScriptLanguagePlugin } from "./languagePlugin";
 
 const connection = createConnection();
 const server = createServer(connection);
