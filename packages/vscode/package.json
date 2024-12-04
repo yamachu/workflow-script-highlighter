@@ -26,7 +26,7 @@
 	"scripts": {
 		"build": "node scripts/build -- --minify",
 		"watch": "npm run build -- --watch",
-		"pack": "npm run build && vsce package --pre-release",
+		"pack": "npm run build && node scripts/copyResources.js && vsce package --pre-release",
 		"release": "npm run build && vsce publish --pre-release"
 	},
 	"devDependencies": {
@@ -36,8 +36,5 @@
 		"@vscode/vsce": "latest",
 		"@yamachu/github-script-language-server": "*",
 		"esbuild": "latest"
-	},
-	"dependencies": {
-		"@types/github-script": "github:actions/github-script"
 	}
 }
