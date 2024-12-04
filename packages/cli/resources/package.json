@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@types/github-script": "github:actions/github-script",
+    "typescript": "^5.7.2"
+  }
+}
