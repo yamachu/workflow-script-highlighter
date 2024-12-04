@@ -7,10 +7,17 @@ Also, it provides a code completion feature.
 
 - Highlight the TypeScript syntax of the @actions/github-script scripts section.
 
-
+<!-- For GitHub -->
 https://github.com/user-attachments/assets/3bdfbb3d-7c47-411e-9cb4-383285e5b490
 
+<!-- For Marketplace -->
+<!-- ![Completion](./images/completion.gif) -->
+
+<!-- For GitHub -->
 https://github.com/user-attachments/assets/9b227403-327f-4f94-a70b-5505f05f966f
+
+<!-- For Marketplace -->
+<!-- ![Definition](./images/definition.gif) -->
 
 Powered by Volar.js
 
