@@ -1,0 +1,10 @@
+{
+  "name": "@yamachu/workflow-script-highlighter-core",
+  "version": "1.0.0",
+  "license": "MIT",
+  "dependencies": {
+    "@volar/language-core": "~2.4.0",
+    "@volar/typescript": "~2.4.0",
+    "vscode-uri": "^3.0.8"
+  }
+}
