@@ -1,8 +1,7 @@
 .vscode/**
 .vscode-test/**
 out/**
-# For bundling @actions/* and @types/github-script
-# node_modules/**
+node_modules/**
 src/**
 .gitignore
 .yarnrc
@@ -13,5 +12,11 @@ vsc-extension-quickstart.md
 **/*.map
 **/*.ts
 **/.vscode-test.*
+scripts/*
+../**
+../../**
+resources/node_modules
+
 # For bundling @actions/* and @types/github-script d.ts
-!**/*.d.ts
+!resources/node_modules/**/*.d.ts
+!resources/node_modules/**/package.json

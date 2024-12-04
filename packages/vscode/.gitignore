@@ -1,0 +1,5 @@
+# rootからcopyするため、ignore
+README.md
+CHANGELOG.md
+LICENSE
+images/
