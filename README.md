@@ -7,7 +7,12 @@ Also, it provides a code completion feature.
 
 - Highlight the TypeScript syntax of the @actions/github-script scripts section.
 
-![Completion](./images/extension_feature_completion.png)
+
+https://github.com/user-attachments/assets/3bdfbb3d-7c47-411e-9cb4-383285e5b490
+
+https://github.com/user-attachments/assets/9b227403-327f-4f94-a70b-5505f05f966f
+
+Powered by Volar.js
 
 ## Requirements
 
