@@ -1,0 +1,14 @@
+{
+  "name": "@yamachu/github-script-checker",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "bin": {
+    "github-script-checker": "./bin/github-script-checker.js"
+  },
+  "dependencies": {
+    "@volar/kit": "^2.4.10",
+    "@yamachu/workflow-script-highlighter-core": "*",
+    "volar-service-typescript": "volar-2.4"
+  }
+}
