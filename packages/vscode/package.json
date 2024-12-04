@@ -2,10 +2,15 @@
 	"private": true,
 	"name": "workflow-script-highlighter",
 	"version": "0.0.1",
+	"publisher": "yamachu",
+	"license": "MIT",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/yamachu/workflow-script-highlighter",
 		"directory": "packages/vscode"
+	},
+	"bugs": {
+		"url": "https://github.com/yamachu/workflow-script-highlighter/issues"
 	},
 	"categories": [
 		"Programming Languages"
