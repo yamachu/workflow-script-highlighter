@@ -38,7 +38,8 @@ export async function activate(context: vscode.ExtensionContext) {
         tsdk: (await getTsdk(context))!.tsdk,
       },
       typeRoots: [
-        vscode.Uri.joinPath(context.extensionUri, "node_modules").fsPath,
+        vscode.Uri.joinPath(context.extensionUri, "resources", "node_modules")
+          .fsPath,
       ],
     },
   };
