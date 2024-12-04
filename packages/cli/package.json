@@ -3,9 +3,18 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
+  "author": {
+    "name": "yamachu",
+    "url": "https://github.com/yamachu"
+  },
   "bin": {
     "github-script-checker": "./bin/github-script-checker.js"
   },
+  "files": [
+    "bin",
+    "dist",
+    "resources"
+  ],
   "dependencies": {
     "@volar/kit": "^2.4.10",
     "@yamachu/workflow-script-highlighter-core": "*",
