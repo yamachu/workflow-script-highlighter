@@ -13,10 +13,5 @@
 		"noUnusedLocals": true,
 		"noUnusedParameters": true,
 		"baseUrl": "./",
-		"paths": {
-			"@html1/language-server": [
-				"packages/language-server/src"
-			],
-		},
 	},
 }
