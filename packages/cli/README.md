@@ -8,10 +8,10 @@ This tool checks the type of JavaScript codes written in the script element of a
 
 ```sh
 # without install
-$ npx -p @yamachu/github-script-checker workflow-script-highlighter <path>
+$ npx -p @yamachu/github-script-checker github-script-checker <path>
 # with install locally
 $ npm install @yamachu/github-script-checker
-$ npx workflow-script-highlighter <path>
+$ npx github-script-checker <path>
 ```
 
 ### File format
@@ -61,7 +61,7 @@ jobs:
 Run the following command.
 
 ```sh
-$ npx -p @yamachu/github-script-checker workflow-script-highlighter .github/workflows/example.yml
+$ npx -p @yamachu/github-script-checker github-script-checker .github/workflows/example.yml
 
 ../../sample/.github/workflows/sample.yml:24:13 - error ts(2304): Cannot find name 'foo'.
 
