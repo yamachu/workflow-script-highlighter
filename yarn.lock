@@ -252,6 +252,17 @@
   resolved "https://registry.yarnpkg.com/@types/vscode/-/vscode-1.95.0.tgz#484aee82c69fa2d73e29d4bf2a91191e570dbc70"
   integrity sha512-0LBD8TEiNbet3NvWsmn59zLzOFu/txSlGxnv5yAFHCrhG9WvAnR3IvfHzMOs2aeWqgvNjq9pO99IUw8d3n+unw==
 
+"@volar/kit@^2.4.10":
+  version "2.4.10"
+  resolved "https://registry.yarnpkg.com/@volar/kit/-/kit-2.4.10.tgz#1e901a8406e6990028398bcc5883723ad150de6a"
+  integrity sha512-ul+rLeO9RlFDgkY/FhPWMnpFqAsjvjkKz8VZeOY5YCJMwTblmmSBlNJtFNxSBx9t/k1q80nEthLyxiJ50ZbIAg==
+  dependencies:
+    "@volar/language-service" "2.4.10"
+    "@volar/typescript" "2.4.10"
+    typesafe-path "^0.2.2"
+    vscode-languageserver-textdocument "^1.0.11"
+    vscode-uri "^3.0.8"
+
 "@volar/language-core@2.4.10", "@volar/language-core@~2.4.0":
   version "2.4.10"
   resolved "https://registry.yarnpkg.com/@volar/language-core/-/language-core-2.4.10.tgz#7d57c29d27f7bce2fa7eb9f3a1fc053a3e28e53f"
@@ -1571,6 +1582,11 @@ typed-rest-client@^1.8.4:
     qs "^6.9.1"
     tunnel "0.0.6"
     underscore "^1.12.1"
+
+typesafe-path@^0.2.2:
+  version "0.2.2"
+  resolved "https://registry.yarnpkg.com/typesafe-path/-/typesafe-path-0.2.2.tgz#91a436681b2f514badb114061b6a5e5c2b8943b1"
+  integrity sha512-OJabfkAg1WLZSqJAJ0Z6Sdt3utnbzr/jh+NAHoyWHJe8CMSy79Gm085094M9nvTPy22KzTVn5Zq5mbapCI/hPA==
 
 typescript-auto-import-cache@^0.3.3:
   version "0.3.5"
