@@ -22,6 +22,9 @@
 	"activationEvents": [
 		"onLanguage:github-actions-workflow"
 	],
+	"extensionDependencies": [
+		"github.vscode-github-actions"
+	],
 	"main": "./dist/client.js",
 	"scripts": {
 		"build": "node scripts/build -- --minify",
