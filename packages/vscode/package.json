@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "workflow-script-highlighter",
-	"version": "0.2.0",
+	"version": "0.2.1",
 	"publisher": "yamachu",
 	"license": "MIT",
 	"repository": {
@@ -36,6 +36,7 @@
 		"build": "node scripts/build -- --minify",
 		"watch": "npm run build -- --watch",
 		"pack": "npm run build && node scripts/copyResources.js && vsce package --pre-release",
+		"pack/release": "npm run build && node scripts/copyResources.js && vsce package",
 		"release": "npm run build && vsce publish --pre-release"
 	},
 	"devDependencies": {
