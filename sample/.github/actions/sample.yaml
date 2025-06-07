@@ -24,4 +24,7 @@ jobs:
               // show errors, ')' expected
               foo.bar(;
           #```
+      - uses: actions/github-script@v7
+        with:
+          script: core.debug('Hello, World!')
   
