@@ -5,7 +5,8 @@
   "dependencies": {
     "@volar/language-core": "~2.4.0",
     "@volar/typescript": "~2.4.0",
-    "vscode-uri": "^3.0.8"
+    "vscode-uri": "^3.0.8",
+    "yaml": "^2.8.0"
   },
   "devDependencies": {
     "vitest": "^3.2.2"
