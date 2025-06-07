@@ -32,7 +32,10 @@ export async function activate(context: vscode.ExtensionContext) {
     },
   };
   const clientOptions: LanguageClientOptions = {
-    documentSelector: [{ language: "github-actions-workflow" }],
+    documentSelector: [
+      { language: "github-actions-workflow" },
+      { language: "yaml" },
+    ],
     initializationOptions: {
       typescript: {
         tsdk: (await getTsdk(context))!.tsdk,

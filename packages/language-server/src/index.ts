@@ -4,7 +4,8 @@ import {
   createTypeScriptProject,
   loadTsdkByPath,
 } from "@volar/language-server/node";
-import { gitHubScriptLanguagePlugin } from "@yamachu/workflow-script-highlighter-core/src/languagePlugin";
+import { gitHubScriptLanguagePlugin } from "@yamachu/workflow-script-highlighter-core/src/plugins/github-workflow-script";
+import { yamlLanguagePlugin } from "@yamachu/workflow-script-highlighter-core/src/plugins/yaml";
 import { create as createTypeScriptServices } from "volar-service-typescript";
 
 const connection = createConnection();
@@ -20,7 +21,7 @@ connection.onInitialize((params) => {
   return server.initialize(
     params,
     createTypeScriptProject(tsdk.typescript, tsdk.diagnosticMessages, () => ({
-      languagePlugins: [gitHubScriptLanguagePlugin],
+      languagePlugins: [gitHubScriptLanguagePlugin, yamlLanguagePlugin],
       setup(options) {
         options.project.typescript!.languageServiceHost.getCompilationSettings().typeRoots =
           params.initializationOptions.typeRoots;
