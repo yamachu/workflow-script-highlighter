@@ -63,4 +63,26 @@ t(
   }
 );
 
-t.todo("typescriptアノテーションがついていないコードをvirtualCodeに変換出来る");
+t(
+  "typescriptアノテーションがついていないコードをvirtualCodeに変換出来る",
+  ({ withoutAnnotate }) => {
+    const virtualCode = new GitHubScriptVirtualCode(withoutAnnotate, "yaml");
+
+    expect(virtualCode.id).toBe("root");
+    expect(
+      virtualCode.embeddedCodes.map((v) => ({
+        sourceOffsets: v.mappings[0].sourceOffsets[0],
+      }))
+    ).toEqual([
+      {
+        sourceOffsets: 173,
+      },
+      {
+        sourceOffsets: 559,
+      },
+      {
+        sourceOffsets: 756,
+      },
+    ]);
+  }
+);

@@ -1,5 +1,6 @@
 import { CodeMapping, VirtualCode } from "@volar/language-core";
 import type * as ts from "typescript";
+import { extractByYaml } from "../utils/yaml-extractor";
 
 export class GitHubScriptVirtualCode implements VirtualCode {
   id = "root";
@@ -26,20 +27,11 @@ export class GitHubScriptVirtualCode implements VirtualCode {
   }
 }
 
-const scriptRegexp = /#```typescript([\s\S]*?)\s*#```/gs;
-
 function* getGitHubScriptEmbeddedCodes(
   snapshot: ts.IScriptSnapshot
 ): Generator<VirtualCode> {
   const documents = snapshot.getText(0, snapshot.getLength());
-  const matched = [...documents.matchAll(scriptRegexp)];
-  const scripts = matched.map((match) => {
-    return {
-      code: match[1],
-      startOffset: match.index + "#```typescript".length,
-      endOffset: match.index + match[0].length - "#```".length,
-    };
-  });
+  const scripts = extractByYaml(documents);
 
   for (let i = 0; i < scripts.length; i++) {
     const script = scripts[i];
