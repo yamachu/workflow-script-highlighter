@@ -1,0 +1,75 @@
+import { CodeMapping, VirtualCode } from "@volar/language-core";
+import type * as ts from "typescript";
+
+export class GitHubScriptVirtualCode implements VirtualCode {
+  id = "root";
+  mappings: CodeMapping[];
+  embeddedCodes: VirtualCode[] = [];
+
+  constructor(public snapshot: ts.IScriptSnapshot, public languageId: string) {
+    this.mappings = [
+      {
+        sourceOffsets: [0],
+        generatedOffsets: [0],
+        lengths: [snapshot.getLength()],
+        data: {
+          completion: true,
+          format: true,
+          navigation: true,
+          semantic: true,
+          structure: true,
+          verification: true,
+        },
+      },
+    ];
+    this.embeddedCodes = [...getGitHubScriptEmbeddedCodes(snapshot)];
+  }
+}
+
+const scriptRegexp = /#```typescript([\s\S]*?)\s*#```/gs;
+
+function* getGitHubScriptEmbeddedCodes(
+  snapshot: ts.IScriptSnapshot
+): Generator<VirtualCode> {
+  const documents = snapshot.getText(0, snapshot.getLength());
+  const matched = [...documents.matchAll(scriptRegexp)];
+  const scripts = matched.map((match) => {
+    return {
+      code: match[1],
+      startOffset: match.index + "#```typescript".length,
+      endOffset: match.index + match[0].length - "#```".length,
+    };
+  });
+
+  for (let i = 0; i < scripts.length; i++) {
+    const script = scripts[i];
+    const pre = `export default async ({ context, core, exec, github, glob, io, require }: import('@types/github-script').AsyncFunctionArguments) => {`;
+    const post = `}`;
+    const text = pre + script.code + post;
+    yield {
+      id: "script_" + i,
+      languageId: "javascript", // github-scripts not supporting TypeScript
+      snapshot: {
+        getText: (start, end) => text.substring(start, end),
+        getLength: () => text.length,
+        getChangeRange: () => undefined,
+      },
+      mappings: [
+        {
+          sourceOffsets: [script.startOffset],
+          generatedOffsets: [pre.length],
+          lengths: [script.code.length],
+          data: {
+            completion: true,
+            format: true,
+            navigation: true,
+            semantic: true,
+            structure: true,
+            verification: true,
+          },
+        },
+      ],
+      embeddedCodes: [],
+    };
+  }
+}
