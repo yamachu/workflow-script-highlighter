@@ -25,6 +25,10 @@ Powered by Volar.js
 
 - [GitHub Actions Extension](https://marketplace.visualstudio.com/items?itemName=GitHub.vscode-github-actions)
 
+## Usage
+
+See [sample](https://github.com/yamachu/workflow-script-highlighter/tree/main/sample).
+
 ## Contributing
 
 NEED HELP, See Issues.
