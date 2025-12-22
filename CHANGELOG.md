@@ -2,6 +2,10 @@
 
 All notable changes to the "workflow-script-highlighter" extension will be documented in this file.
 
+## [v0.2.3]
+
+- Fix crash when opening an empty-YAML file.
+
 ## [v0.2.0]
 
 - Can highlight without `#```typescript` annotation!
