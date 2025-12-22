@@ -79,5 +79,10 @@ export const extractByYaml = (
   const parser = new Parser();
   const parsed = parser.parse(documents).next().value as CST.Document;
 
+  // Handle empty or invalid documents
+  if (!parsed || !parsed.value) {
+    return [];
+  }
+
   return findScriptsCST(parsed.value);
 };
