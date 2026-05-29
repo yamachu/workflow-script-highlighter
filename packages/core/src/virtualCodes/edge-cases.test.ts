@@ -73,7 +73,38 @@ jobs:
   } as ts.IScriptSnapshot;
 
   const virtualCode = new GitHubScriptVirtualCode(snapshot, "yaml");
-  
+
   expect(virtualCode.id).toBe("root");
   expect(virtualCode.embeddedCodes.length).toBe(0);
+});
+
+test("${{ }} expressions in template literals are sanitized to prevent TS parse errors", () => {
+  const workflow = `
+name: Test
+on: push
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v9
+        with:
+          script: |
+            const msg = \`Hello \${{ inputs.name }}\`;
+            core.info(msg);
+`;
+  const snapshot = {
+    getText: (start: number, end: number) => workflow.substring(start, end),
+    getLength: () => workflow.length,
+    getChangeRange: () => undefined,
+  } as ts.IScriptSnapshot;
+
+  const virtualCode = new GitHubScriptVirtualCode(snapshot, "yaml");
+
+  expect(virtualCode.embeddedCodes.length).toBe(1);
+  const generated = virtualCode.embeddedCodes[0].snapshot.getText(
+    0,
+    virtualCode.embeddedCodes[0].snapshot.getLength()
+  );
+  expect(generated).not.toContain("${{");
+  expect(generated).toContain("undefined");
 });

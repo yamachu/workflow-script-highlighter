@@ -37,7 +37,10 @@ function* getGitHubScriptEmbeddedCodes(
     const script = scripts[i];
     const pre = `export default async ({ context, core, exec, github, glob, io, require }: import('@types/github-script').AsyncFunctionArguments) => {`;
     const post = `}`;
-    const text = pre + script.code + post;
+    // Replace ${{ }} expressions with `undefined` so the TS language server
+    // does not try to parse them as template literal interpolations.
+    const sanitizedCode = script.code.replace(/\$\{\{[^}]*\}\}/g, "undefined");
+    const text = pre + sanitizedCode + post;
     yield {
       id: "script_" + i,
       languageId: "javascript", // github-scripts not supporting TypeScript
@@ -50,7 +53,7 @@ function* getGitHubScriptEmbeddedCodes(
         {
           sourceOffsets: [script.startOffset],
           generatedOffsets: [pre.length],
-          lengths: [script.code.length],
+          lengths: [sanitizedCode.length],
           data: {
             completion: true,
             format: true,
