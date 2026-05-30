@@ -25,4 +25,10 @@ jobs:
               // show errors, ')' expected
               foo.bar(;
           #```
-  
+      - uses: actions/github-script@v7
+        with:
+          script: | #```typescript
+              const msg = `Hello ${{ inputs.name }}, you are ${{ github.actor }}`;
+              core.debug('fromJSON: ${{ fromJSON(inputs.value) }}');
+              const obj = ${{ fromJSON(inputs.value) }};
+          #```

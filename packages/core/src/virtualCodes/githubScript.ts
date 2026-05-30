@@ -39,8 +39,43 @@ function* getGitHubScriptEmbeddedCodes(
     const post = `}`;
     // Replace ${{ }} expressions with `undefined` so the TS language server
     // does not try to parse them as template literal interpolations.
-    const sanitizedCode = script.code.replace(/\$\{\{[^}]*\}\}/g, "undefined");
+    const ghaPattern = /\$\{\{[^}]*\}\}/g;
+    const sanitizedCode = script.code.replace(ghaPattern, "undefined");
     const text = pre + sanitizedCode + post;
+
+    // Build segmented mappings that skip over GHA expressions.
+    // A single flat mapping would offset everything after the first GHA expression
+    // because `undefined` (9 chars) is shorter than `${{ ... }}`.
+    const sourceOffsets: number[] = [];
+    const generatedOffsets: number[] = [];
+    const lengths: number[] = [];
+    let lastSourceEnd = 0;
+    let genPos = 0;
+    let match: RegExpExecArray | null;
+    ghaPattern.lastIndex = 0;
+    while ((match = ghaPattern.exec(script.code)) !== null) {
+      const segLen = match.index - lastSourceEnd;
+      if (segLen > 0) {
+        sourceOffsets.push(script.startOffset + lastSourceEnd);
+        generatedOffsets.push(pre.length + genPos);
+        lengths.push(segLen);
+        genPos += segLen;
+      }
+      genPos += "undefined".length;
+      lastSourceEnd = match.index + match[0].length;
+    }
+    const remainingLen = script.code.length - lastSourceEnd;
+    if (remainingLen > 0) {
+      sourceOffsets.push(script.startOffset + lastSourceEnd);
+      generatedOffsets.push(pre.length + genPos);
+      lengths.push(remainingLen);
+    }
+    if (sourceOffsets.length === 0) {
+      sourceOffsets.push(script.startOffset);
+      generatedOffsets.push(pre.length);
+      lengths.push(script.code.length);
+    }
+
     yield {
       id: "script_" + i,
       languageId: "javascript", // github-scripts not supporting TypeScript
@@ -51,9 +86,9 @@ function* getGitHubScriptEmbeddedCodes(
       },
       mappings: [
         {
-          sourceOffsets: [script.startOffset],
-          generatedOffsets: [pre.length],
-          lengths: [sanitizedCode.length],
+          sourceOffsets,
+          generatedOffsets,
+          lengths,
           data: {
             completion: true,
             format: true,

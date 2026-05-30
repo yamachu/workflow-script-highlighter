@@ -145,9 +145,7 @@ jobs:
   expect(generated.match(/undefined/g)?.length).toBe(2);
 });
 
-test.fails(
-  "${{ }} を含むスクリプトのソースマッピングが元のYAMLの全範囲をカバーする",
-  () => {
+test("${{ }} を含むスクリプトのソースマッピングが元のYAMLの全範囲をカバーする", () => {
     const workflow = `
 name: Test
 on: push
@@ -169,14 +167,19 @@ jobs:
 
     const scripts = extractByYaml(workflow);
     expect(scripts.length).toBe(1);
-    const originalCodeLength = scripts[0].code.length;
+    const originalScript = scripts[0];
 
     const virtualCode = new GitHubScriptVirtualCode(snapshot, "yaml");
     const mapping = virtualCode.embeddedCodes[0].mappings[0];
 
-    // ソース側のマッピング長はYAMLの元のコード長と一致しなければならない。
-    // sanitize 後の短い長さ（sanitizedCode.length）になっていると、
-    // ${{ }} 以降のコードのソース位置が正確に参照できなくなる。
-    expect(mapping.lengths[0]).toBe(originalCodeLength);
-  },
-);
+    // GHA式をまたいで複数セグメントに分割されているはず
+    expect(mapping.sourceOffsets.length).toBeGreaterThan(1);
+
+    // 全セグメントの末尾がYAMLの元コードの末尾に一致するか確認
+    const lastIdx = mapping.sourceOffsets.length - 1;
+    const lastSourceEnd =
+      mapping.sourceOffsets[lastIdx] + mapping.lengths[lastIdx];
+    expect(lastSourceEnd).toBe(
+      originalScript.startOffset + originalScript.code.length
+    );
+});
