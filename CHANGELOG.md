@@ -2,6 +2,10 @@
 
 All notable changes to the "workflow-script-highlighter" extension will be documented in this file.
 
+## [v0.3.0]
+
+- Fix: sanitize GHA ${{ }} expressions to prevent TS parse errors (https://github.com/yamachu/workflow-script-highlighter/pull/16)
+
 ## [v0.2.3]
 
 - Fix crash when opening an empty-YAML file.
