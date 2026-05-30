@@ -1,4 +1,4 @@
-import { gitHubScriptLanguagePlugin } from "@yamachu/workflow-script-highlighter-core/src/languagePlugin";
+import { gitHubScriptLanguagePlugin } from "@yamachu/workflow-script-highlighter-core/src/plugins/github-workflow-script";
 import { readdirSync, statSync } from "node:fs";
 import { isAbsolute, join, resolve } from "node:path";
 import { create as createTypeScriptServices } from "volar-service-typescript";
