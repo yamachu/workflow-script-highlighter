@@ -1,4 +1,5 @@
 import { GitHubScriptVirtualCode } from "./githubScript";
+import { extractByYaml } from "../utils/yaml-extractor";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import * as ts from "typescript";
@@ -10,7 +11,7 @@ const githubRoot = resolve(
   "..",
   "..",
   "sample",
-  ".github"
+  ".github",
 );
 
 test("既存のworkflowファイルが正しく動作する", async () => {
@@ -23,7 +24,7 @@ test("既存のworkflowファイルが正しく動作する", async () => {
   } as ts.IScriptSnapshot;
 
   const virtualCode = new GitHubScriptVirtualCode(snapshot, "yaml");
-  
+
   expect(virtualCode.id).toBe("root");
   expect(virtualCode.embeddedCodes.length).toBeGreaterThan(0);
 });
@@ -31,13 +32,14 @@ test("既存のworkflowファイルが正しく動作する", async () => {
 test("空のworkflowファイルでクラッシュしない", () => {
   const emptyWorkflow = "";
   const snapshot = {
-    getText: (start: number, end: number) => emptyWorkflow.substring(start, end),
+    getText: (start: number, end: number) =>
+      emptyWorkflow.substring(start, end),
     getLength: () => emptyWorkflow.length,
     getChangeRange: () => undefined,
   } as ts.IScriptSnapshot;
 
   const virtualCode = new GitHubScriptVirtualCode(snapshot, "yaml");
-  
+
   expect(virtualCode.id).toBe("root");
   expect(virtualCode.embeddedCodes.length).toBe(0);
 });
@@ -45,13 +47,14 @@ test("空のworkflowファイルでクラッシュしない", () => {
 test("スペースのみのworkflowファイルでクラッシュしない", () => {
   const whitespaceWorkflow = "   \n  \n";
   const snapshot = {
-    getText: (start: number, end: number) => whitespaceWorkflow.substring(start, end),
+    getText: (start: number, end: number) =>
+      whitespaceWorkflow.substring(start, end),
     getLength: () => whitespaceWorkflow.length,
     getChangeRange: () => undefined,
   } as ts.IScriptSnapshot;
 
   const virtualCode = new GitHubScriptVirtualCode(snapshot, "yaml");
-  
+
   expect(virtualCode.id).toBe("root");
   expect(virtualCode.embeddedCodes.length).toBe(0);
 });
@@ -67,7 +70,8 @@ jobs:
       - uses: actions/checkout@v2
 `;
   const snapshot = {
-    getText: (start: number, end: number) => noScriptWorkflow.substring(start, end),
+    getText: (start: number, end: number) =>
+      noScriptWorkflow.substring(start, end),
     getLength: () => noScriptWorkflow.length,
     getChangeRange: () => undefined,
   } as ts.IScriptSnapshot;
@@ -103,8 +107,76 @@ jobs:
   expect(virtualCode.embeddedCodes.length).toBe(1);
   const generated = virtualCode.embeddedCodes[0].snapshot.getText(
     0,
-    virtualCode.embeddedCodes[0].snapshot.getLength()
+    virtualCode.embeddedCodes[0].snapshot.getLength(),
   );
   expect(generated).not.toContain("${{");
   expect(generated).toContain("undefined");
 });
+
+test("複数の ${{ }} expressions が全て sanitize される", () => {
+  const workflow = `
+name: Test
+on: push
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v9
+        with:
+          script: |
+            const msg = \`Hello \${{ inputs.name }}, you are \${{ github.actor }}\`;
+            core.info(msg);
+`;
+  const snapshot = {
+    getText: (start: number, end: number) => workflow.substring(start, end),
+    getLength: () => workflow.length,
+    getChangeRange: () => undefined,
+  } as ts.IScriptSnapshot;
+
+  const virtualCode = new GitHubScriptVirtualCode(snapshot, "yaml");
+
+  expect(virtualCode.embeddedCodes.length).toBe(1);
+  const generated = virtualCode.embeddedCodes[0].snapshot.getText(
+    0,
+    virtualCode.embeddedCodes[0].snapshot.getLength(),
+  );
+  expect(generated).not.toContain("${{");
+  // ${{ inputs.name }} と ${{ github.actor }} の2つが置換される
+  expect(generated.match(/undefined/g)?.length).toBe(2);
+});
+
+test.fails(
+  "${{ }} を含むスクリプトのソースマッピングが元のYAMLの全範囲をカバーする",
+  () => {
+    const workflow = `
+name: Test
+on: push
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v9
+        with:
+          script: |
+            const msg = \`Hello \${{ inputs.name }}\`;
+            core.info(msg);
+`;
+    const snapshot = {
+      getText: (start: number, end: number) => workflow.substring(start, end),
+      getLength: () => workflow.length,
+      getChangeRange: () => undefined,
+    } as ts.IScriptSnapshot;
+
+    const scripts = extractByYaml(workflow);
+    expect(scripts.length).toBe(1);
+    const originalCodeLength = scripts[0].code.length;
+
+    const virtualCode = new GitHubScriptVirtualCode(snapshot, "yaml");
+    const mapping = virtualCode.embeddedCodes[0].mappings[0];
+
+    // ソース側のマッピング長はYAMLの元のコード長と一致しなければならない。
+    // sanitize 後の短い長さ（sanitizedCode.length）になっていると、
+    // ${{ }} 以降のコードのソース位置が正確に参照できなくなる。
+    expect(mapping.lengths[0]).toBe(originalCodeLength);
+  },
+);
