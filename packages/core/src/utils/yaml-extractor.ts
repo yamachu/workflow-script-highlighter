@@ -77,12 +77,11 @@ export const extractByYaml = (
   documents: string
 ): { code: string; startOffset: number; endOffset: number }[] => {
   const parser = new Parser();
-  const parsed = parser.parse(documents).next().value as CST.Document;
-
-  // Handle empty or invalid documents
-  if (!parsed || !parsed.value) {
-    return [];
+  for (const token of parser.parse(documents)) {
+    if (token.type === "document") {
+      if (!token.value) return [];
+      return findScriptsCST(token.value);
+    }
   }
-
-  return findScriptsCST(parsed.value);
+  return [];
 };
